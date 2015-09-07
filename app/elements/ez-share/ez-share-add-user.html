@@ -1,0 +1,198 @@
+<dom-module id="ez-share-add-user">
+  <style>
+    :host {
+      display: block;
+    }
+
+    input[is="iron-input"] {
+      font: inherit;
+      outline: none;
+      box-shadow: none;
+      border: none;
+      width: auto;
+      /*text-align: center;*/
+    }
+
+    .floating-list {
+      position: absolute;
+      z-index: 1000;
+      background-color: #eee;
+      width: 100%;
+    }
+
+    .floating-list div {
+      float: left;
+      list-style: none;
+      background-color: #666; //#FF4081;
+      color: white;
+      padding: 5px;
+      margin: 4px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .left {
+      float: left;
+    }
+
+    .roundedimg {
+      border-radius: 20px;
+    }
+
+  </style>
+    <template>
+      <div>
+        <input is="iron-input" bind-value="{{user.name}}" aria-label="Item" on-focusout="onItemFocusOut" on-keyup="onItemChange" tabIndex="0"></input>
+
+        <div hidden="true" id="matchlist" class="floating-list">
+          <br>
+          <paper-button raised on-tap="done" tabIndex="0">Done</paper-button>
+          <p>
+            <template is="dom-repeat" items="{{filteredUsers}}">
+              <div>
+              <iron-image class="left roundedimg" style="width:40px;height:40px;" sizing="contain" src$="{{getProfileImage(item)}}"></iron-image>
+              <div class="left" on-tap="selectUser">{{item.name}}</div>
+            </div>
+            </template>
+          </p>
+      </div>
+
+    </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-share-add-user',
+      properties: {
+        user: {
+          type: Object,
+          notify: true
+        }, 
+        users: {
+          type: Array
+        },
+        usersObj: {
+          type: Object,
+          notify: true
+        },
+        filteredUsers: {
+          type: Array,
+          notify: true,
+          value: []
+        }
+      },
+      ready: function() {
+        var me = this;
+
+        this.user = {};
+
+        var fbRef = new Firebase(Ezfy.BASE_FB_URL + "users");
+        fbRef.on('value', function(snapshot) {
+          // console.log('Users: ', snapshot.val());
+          var usersObj = snapshot.val();
+          var users = [];
+          for (var userId in usersObj) {
+            var o = usersObj[userId];
+            users.push({
+                uid: userId,
+                name: o.name,
+                gaHash: o.gaHash
+              });
+          }
+
+          me.set('users', users);
+
+          // me.fire('usersloaded', usersObj);
+
+          // var iel = new Polymer.IronMeta({
+          //   key: 'users',
+          //   value: usersObj
+          // });
+          // document.body.appendChild(iel);
+          // new Polymer.IronMetaQuery({key: 'users'}).value = usersObj;
+        });
+      },
+      onItemChange: function() {
+        // console.log('onItemChange: ', arguments);
+
+        var val = this.user.name;
+
+        if (!val || val === "") {
+          this.$.matchlist.hidden = true;
+        } else {
+          this.$.matchlist.hidden = false;
+        }
+
+        //filter users
+        var filteredUsers = this.getFilteredUsers();
+        this.set('filteredUsers', filteredUsers);
+      },
+      isMatchingUser: function(user) {
+        var f = false;
+
+        //filter out the self
+        if (user.uid === Ezfy.user.uid) {
+          return f;
+        }
+
+        f = (user.name.toLowerCase().indexOf(this.user.name.toLowerCase()) > -1) ? true : false;
+        // console.log("isMatchingUser: ", f, user.name, this.user.name);
+        return f;
+      },
+      getFilteredUsers: function() {
+        var filteredUsers = [];
+        var l = this.users.length;
+        for(var i=0; i<l; i++) {
+          var user = this.users[i];
+          if (this.isMatchingUser(user)) {
+            var tmp = {
+              uid: user.uid,
+              name: user.name,
+              gaHash: user.gaHash
+            };
+            filteredUsers.push(tmp);
+          }
+        }
+
+        return filteredUsers;
+      },
+      selectUser: function(e) {
+        // console.log('selectUser:', e.model.item);
+
+        this.user = e.model.item;
+
+        //remove the selected user from the list
+        this.filteredUsers.splice(e.model.index, 1);
+
+        //BUG: looks like a bug in Polymer. splice does not change the reference address of the array. So, if I set do this.set('filteredUsers', this.filteredUsers) Polymer does not detect that the array has actually changed and hence does not update the property value. I am copying it to a new array and setting it just to make sure that Polymer detects this as a change.
+        var u = [], 
+            l = this.filteredUsers.length;
+        for (var i=0; i<l; i++) {
+          u.push(this.filteredUsers[i]);
+        }
+
+        this.set('filteredUsers', u);
+
+        this.fire('additem', {
+          uid: this.user.uid, 
+          gaHash: this.user.gaHash,
+          name: this.user.name
+        });
+
+        this.user = {name: ""};
+      },
+      done: function() {
+        // console.log('done: ', arguments);
+
+        this.$.matchlist.hidden = true;
+      },
+      onItemFocusOut: function() {
+        // this.$.matchlist.hidden = true;
+      },
+      getProfileImage: function(user) {
+        return 'http://www.gravatar.com/avatar/' + user.gaHash + "?s=40&d=" + 'https%3A%2F%2Fwtcindia.files.wordpress.com%2F2015%2F07%2Fgravatar.png';
+      }
+
+    });
+  })();
+</script>

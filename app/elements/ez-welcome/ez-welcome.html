@@ -1,0 +1,105 @@
+<dom-module id="ez-welcome">
+  <style>
+   :host {
+      @apply(--layout);
+      
+      /*background-color: var(--paper-light-blue-500);*/
+      /*color: white;*/
+      text-align: center;
+      align-items:center;
+      -webkit-align-items: center;
+      justify-content:center;
+      -webkit-justify-content:center;
+      height: 100%;
+      background-color: #3F51B5;
+    }
+
+    paper-button {
+      display: block;
+      /*margin-bottom: 24px;*/
+    }
+
+    paper-button.primary {
+      background-color: #3F51B5;
+      color: #fff;
+    }
+
+    paper-button.secondary {
+      background-color: #fff;
+      color: #3F51B5;
+    }
+
+    .logo {
+      /*height: 150px;*/
+      /*margin-top: 64px;*/
+      /*margin-left: 80px;*/
+      /*background-image: url(images/ezfy_logo_pink_small.png);*/
+      /*background-image: url(https://wtcindia.files.wordpress.com/2015/07/gravatar.png);
+      background-repeat: no-repeat;*/
+      height: 87px;
+      width: 72px;
+      /*margin-bottom: 100px;*/
+    }
+
+    .whitetxt {
+      color: #fff;
+      font-weight: 100;
+    }
+
+    .largetxt {
+      font-size: 2em;
+    }
+
+    .pinktxt {
+      color: #FF4081;
+    }
+
+    .list {
+      list-style: none;
+      text-align: left;
+      font-size: 0.8em;
+    }
+
+    .topgap {
+      margin-top: 13em;
+    }
+
+    .sidegap {
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
+  </style>
+  <template>
+    <div>
+        <iron-icon class="logo" src="images/ezfy_logo_pink_small.png"></iron-icon>
+        <br>
+        <p class="whitetxt largetxt">Welcome to <span class="pinktxt">Ezfy!</span></p>
+        <br>
+        <!-- <p class="whitetxt">manage . share . collaborate</p> -->
+        <p class="whitetxt sidegap">Creating and sharing lists with your families and friends could not have been this easier!</p>
+        <!-- <ul class="list pinktxt">
+          <li>Grocery</li>
+          <li>Fruits</li>
+          <li>Weekend Party</li>
+          <li>Birthday Party</li>
+          <li>......</li>
+        </ul> -->
+
+        <paper-button class="secondary topgap sidegap" raised on-tap="getStarted">Get Started</paper-button>
+    </div>
+  </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-welcome',
+      properties: {
+
+      },
+      getStarted: function() {
+        this.fire('getstarted');
+      }
+    });
+  })();
+</script>

@@ -1,0 +1,100 @@
+<dom-module id="ez-emptylist-placeholder">
+  <style>
+    :host {
+      @apply(--layout);
+      
+      /*background-color: var(--paper-light-blue-500);*/
+      /*color: white;*/
+      text-align: center;
+      align-items:center;
+      -webkit-align-items: center;
+      justify-content:center;
+      -webkit-justify-content:center;
+      padding: 50px;
+    }
+
+    /*paper-button {
+      display: block;
+      margin-bottom: 24px;
+    }*/
+
+    paper-button.primary {
+      background-color: #3F51B5;
+      color: #fff;
+    }
+
+    paper-button.secondary {
+      /*background-color: #3F51B5;*/
+      color: #3F51B5;
+    }
+
+    .logo {
+      /*height: 150px;*/
+      /*margin-top: 64px;*/
+      /*margin-left: 80px;*/
+      /*background-image: url(images/ezfy_logo_pink_small.png);*/
+      /*background-image: url(https://wtcindia.files.wordpress.com/2015/07/gravatar.png);
+      background-repeat: no-repeat;*/
+      height: 128px;
+      width: 128px;
+      /*margin-bottom: 100px;*/
+      /*-webkit-filter: grayscale(1);
+      filter: grayscale(1);*/
+    }
+
+    .logotext {
+      font-size: 1.5em;
+    }
+
+    .smalltext {
+      font-size: 0.8em;
+    }
+
+    .largetext {
+      font-size: 1.2em;
+    }
+
+    .grey {
+      color: #A1A1A1;
+    }
+
+    .pink {
+      color: #FF4081;
+    }
+
+  </style>
+  <template>
+    <div >
+      <iron-icon class="logo" src$="{{imgsrc}}"></iron-icon>
+      <p class="logotext grey">{{emptytxt}}</p>
+      <!-- <p class="smalltext">manage . share . collaborate</p> -->
+      <p><br><span class="largetext pink">{{msgtxt}}</span></p>
+
+      <!-- <paper-button class="primary" raised on-tap="onSure">Sure!</paper-button> -->
+    </div>
+
+  </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-emptylist-placeholder',
+      properties: {
+        imgsrc: {
+          type: String
+        },
+        emptytxt: {
+          type: String,
+          notify: true
+        },
+        msgtxt: {
+          type: String,
+          notify: true
+        }
+      },
+      onSure: function() {
+        this.fire('createlist');
+      }
+    });
+  })();
+</script>

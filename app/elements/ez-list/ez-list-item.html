@@ -1,0 +1,133 @@
+<dom-module id="ez-list-item">
+  <style>
+    :host {
+      display: block;
+    }
+
+    .rightalign {
+      text-align: right;
+    }
+
+    .col2 {
+      width: 50px;
+    }
+
+    .col3 {
+      width: 80px;
+    }
+
+/*    .avatar {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #ccc;
+    }
+
+    .blue {
+      background-color: var(--paper-light-blue-300);
+    }
+
+    .red {
+      background-color: var(--paper-red-300);
+    }
+
+    .orange {
+      background-color: var(--paper-amber-300);
+    }
+
+    .green {
+      background-color: var(--paper-green-300);
+    }*/
+
+    .crimson {
+      color: crimson;
+    }
+
+    .hand {
+      cursor: pointer;
+    }
+
+    paper-item {
+      /*font-size: 0.8em;*/
+      min-height: 32px;
+    }
+
+    .notetxt {
+      -webkit-margin-before: 0em;
+      -webkit-margin-after: 0em;
+      font-size: 0.8em;
+      color: #E91E63;
+      line-height: 20px;
+    }
+
+    :host-context(.blackbg) .notetxt{
+      color: white;
+    }
+
+    iron-icon:active {
+      background-color: #eee;
+    }
+
+  </style>
+    <template>
+        <paper-dialog id="notedialog" autoCloseDisabled>
+          <h2>Note</h2>
+          <paper-textarea id="nodetxt" label="Text" autofocus></paper-textarea>
+          <div class="buttons">
+            <paper-button dialog-dismiss>Cancel</paper-button>
+            <paper-button dialog-confirm autofocus on-tap="addNote">Done</paper-button>
+          </div>
+        </paper-dialog>
+
+        <paper-item>
+          <div class="flex">[[item.name]]<p class="notetxt">[[item.note]]</p></div>
+          <iron-icon icon="icons:note-add" class="hand" on-click="showNoteDialog" hidden$="{{!editing}}"></iron-icon>
+          <iron-icon icon="icons:remove-circle" class="crimson hand" on-tap="removeItem" hidden$="{{!editing}}"></iron-icon>
+        </paper-item>
+
+    </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-list-item',
+      properties: {
+        listItem: {
+          type: Object,
+          notify: true
+        },
+        item: {
+          type: Object,
+          notify: true,
+        },
+        itemLoc: {
+          type: String,
+          notify: true
+        },
+        editing: {
+          type: Boolean,
+          notify: true,
+        }
+      },
+      ready: function() {
+        // debugger;
+      },
+      removeItem: function() {
+        this.fire('removeitem', this.item);
+      },
+      showNoteDialog: function(e) {
+        this.$.nodetxt.value = this.item.note || "";
+        this.$.notedialog.open();
+      },
+      addNote: function() {
+        this.$.notedialog.close();
+        var v = this.$.nodetxt.value;
+        this.fire('addnote', {item: this.item, note: v});
+        // this.$.listItem.update({note: v});
+        this.$.nodetxt.value = "";
+      }
+    });
+  })();
+</script>

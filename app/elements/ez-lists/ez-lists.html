@@ -1,0 +1,309 @@
+<dom-module id="ez-lists">
+  <style>
+    :host {
+      display: block;
+    }
+
+    #empty-message {
+      @apply(--layout);
+      
+      /*background-color: var(--paper-light-blue-500);*/
+      /*color: white;*/
+      text-align: center;
+      justify-content:center;
+      -webkit-justify-content:center;
+      padding-top: 20px;
+    }
+
+    paper-material {
+      border-radius: 2px;
+      height: 100%;
+      padding: 16px 0 16px 0;
+      width: calc(98.66% - 16px);
+      margin: 16px auto;
+      background: white;
+    }
+
+    @media (max-width: 600px) {
+
+      paper-material {
+        --menu-container-display: none;
+        width: calc(97.33% - 32px);
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+
+    @media (min-width: 601px) {
+
+      paper-material {
+        width: calc(98% - 46px);
+        margin-bottom: 32px;
+        padding-left: 30px;
+        padding-right: 30px;
+      }
+    }
+
+    .smalltext {
+      font-size: 0.8em;
+    }
+
+    .verysmalltext {
+      font-size: 0.5em;
+    }
+
+    .grey {
+      color: #888;
+    }
+
+    h3 {
+      -webkit-margin-before: 0em;
+      -webkit-margin-after: 0em;
+    }
+
+    /*.largetext {
+      font-size: 1.2em;
+    }
+
+    .pink {
+      color: #FF4081;
+    }*/
+
+    paper-progress {
+      width: 70%;
+    }
+
+    .statusbar {
+      height: 40px;
+      float: right;
+      width: 40px;
+      background-color: darkgray;
+      border-radius: 20px;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+  </style>
+  <template>
+
+      <paper-dialog id="removeSharedList">
+        <h2>Remove List</h2>
+        <p>You have shared this list with other users and they will not be able to access it. Do you want to continue?</p>
+        <div class="buttons">
+          <paper-button dialog-dismiss>No</paper-button>
+          <paper-button dialog-confirm autofocus on-tap="deleteAction">Yes</paper-button>
+        </div>
+      </paper-dialog>
+
+      <paper-dialog id="removeList">
+        <h2>Remove List</h2>
+        <p>Are you sure you want to remove this list?</p>
+        <div class="buttons">
+          <paper-button dialog-dismiss>No</paper-button>
+          <paper-button dialog-confirm autofocus on-tap="deleteAction">Yes</paper-button>
+        </div>
+      </paper-dialog>
+
+      <paper-dialog id="youAreNotOwner">
+        <h2>Remove List</h2>
+        <p>The list cannot be removed as you are not the owner.</p>
+        <div class="buttons">
+          <paper-button dialog-dismiss autofocus>OK</paper-button>
+        </div>
+      </paper-dialog>
+
+      <template is="dom-if" if="{{!items.length}}">
+        <ez-emptylist-placeholder imgsrc="images/notebook-list.svg" emptytxt="No Lists" msgtxt="{{getMsgText()}}" on-createlist="onCreateList"></ez-emptylist-placeholder>
+      </template>
+
+      <firebase-collection 
+              location="https://devfestdc15.firebaseio.com/users" 
+              data="{{users}}">
+      </firebase-collection>
+
+      <!-- <template is="dom-if" if="{{items.length}}"> -->
+        <template is="dom-repeat" items="{{items}}">
+          <paper-material elevation="1">
+            <!-- <div class$="{{getClassStr(item.pendingCnt, item.totalCnt)}}">
+              <p class="pendingcnt">{{item.pendingCnt}}</p>
+              <p class="pendingtxt">pending</p>
+            </div> -->
+            <h3>{{item.name}}</h3>
+<!--             <span><a class="smalltext">2</a>&nbsp;of <a class="smalltext">10</a> pending</span> 
+            <br> -->
+            <span class="grey smalltext"><a class="smalltext">{{getName(item.createdBy)}}</a>&nbsp;created on: <a class="smalltext">{{item.createdOn}}</a></span> 
+            <!-- <br> --><br>
+            <paper-icon-button icon="icons:view-list" on-tap="viewAction"></paper-icon-button>
+            <!-- <paper-icon-button icon="icons:open-in-new" on-tap="cloneAction"></paper-icon-button> -->
+            <paper-icon-button icon="icons:favorite" on-tap="favouriteAction" hidden$="{{item.favourite}}"></paper-icon-button>
+            <paper-icon-button src="images/broken-heart.svg" on-tap="unfavouriteAction" hidden$="{{!item.favourite}}"></paper-icon-button>
+            <paper-icon-button icon="social:share" on-tap="shareAction"></paper-icon-button>
+            <!-- Due to bug https://github.com/PolymerElements/paper-dialog/issues/17 we are handling click event rather than tap. Otherwise the dialog closes immediately-->
+            <paper-icon-button icon="icons:delete" on-click="confirmDeleteAction"></paper-icon-button>
+            
+            <!-- <span> -->
+            <!-- <paper-progress min="0" max="10" value="4"></paper-progress>
+            <a class="verysmalltext">2/10 pending</a> -->
+            <!-- <span> -->
+
+          </paper-material>
+
+        </template>
+  </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-lists',
+      behaviors: [
+        Polymer.IronFitBehavior
+      ],
+      properties: {
+        items: {
+          type: Array,
+          notify: true,
+          value: []
+        },
+        type: {
+          type: String, //'all' or 'favourites'
+          notify: true,
+          observer: 'typeChanged'
+        },
+        users: {
+          type: Object
+        },
+        item: {
+          type: Object
+        }
+      },
+      getMsgText: function() {
+        var s = "Start by creating a new list." 
+        if (this.type === 'favourites') {
+          s = "Start by adding lists to your favourites."
+        }
+        return s;
+      },
+      ellipsis: function(value, length, word) {
+          if (value && value.length > length) {
+              if (word) {
+                  var vs = value.substr(0, length - 2),
+                  index = Math.max(vs.lastIndexOf(' '), vs.lastIndexOf('.'), vs.lastIndexOf('!'), vs.lastIndexOf('?'));
+                  if (index !== -1 && index >= (length - 15)) {
+                      return vs.substr(0, index) + "...";
+                  }
+              }
+              return value.substr(0, length - 3) + "...";
+          }
+          return value;
+      },
+      getName: function(uid) {
+        if (this.users) {
+          var str = '';
+          if (uid === Ezfy.user.uid) {
+            str = 'You';
+          } else {
+            str = this.ellipsis(this.users[uid].name, 15);
+          }
+          return str;
+        } else {
+          return uid;
+        }
+      },
+      typeChanged: function(type) {
+
+      },
+      isListEmpty: function() {
+        return this.items.length > 0 ? "false" : "true";
+      },
+      onCreateList: function() {
+        this.fire('createlist');
+      },
+      viewAction: function(e) {
+        // console.log('viewAction: ', e.model.item);
+
+        var item = e.model.item;
+
+        // this.set('selecedListId', item.id);
+        this.fire('viewlist', e.model.item);
+      },
+      favouriteAction: function(e) {
+        // console.log('favouriteAction: ', arguments);
+
+        var fbRef = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid + "/lists/" + e.model.item.id);
+        fbRef.update({"favourite": true});
+
+        this.fire('addtofav', e.model.item);
+      },
+      unfavouriteAction: function(e) {
+        // console.log('unfavouriteAction: ', arguments);
+
+        var fbRef = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid + "/lists/" + e.model.item.id);
+        fbRef.update({"favourite": false});
+
+        this.fire('removefromfav', e.model.item);
+      },
+      shareAction: function(e) {
+        // console.log('shareAction: ', arguments);
+        this.fire('sharelist', e.model.item);
+      },
+      confirmDeleteAction: function(e) {
+        // console.log('confirmDeleteAction', e);
+        e.stopPropagation();
+
+        var me = this;
+
+        this.item = e.model.item;
+
+        if (this.item.createdBy !== Ezfy.user.uid) {
+          //user is not the owner
+          this.$.youAreNotOwner.open();
+          return;
+        }
+
+        //if the list is shared, show the corresponding message
+        var fbRef2 = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid + "/sharedbyme/" + this.item.id);
+        fbRef2.once('value', function(snapshot) {
+          var users = snapshot.val();
+          if (users) {
+            me.$.removeSharedList.open();
+            return;
+          } else {
+            //finally, ths list is NOT shared, show the corresponding message
+            me.$.removeList.open();
+          }
+        });
+
+        
+      },
+      deleteAction: function(e) {
+        // console.log('deleteAction: ', arguments);
+
+        var item = this.item;
+        var id = item.__firebaseKey__;
+
+        var fbRef = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid + "/lists/" + id);
+        fbRef.set(null);
+
+        //delete the list items
+        var fbRef1 = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid + "/listitems/" + id);
+        fbRef1.set(null);
+
+        //delete the entries, if they were shared
+        var fbRef2 = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid + "/sharedbyme/" + id);
+        fbRef2.once('value', function(snapshot) {
+          var users = snapshot.val();
+          for (var key in users) {
+            var tmp = users[key];
+
+            //delete the lis for this use
+            var fbRef3 = new Firebase(Ezfy.BASE_FB_URL + tmp.uid + "/lists/" + id);
+            fbRef3.set(null);
+
+          }
+
+          fbRef2.set(null);
+        });
+      }
+    });
+  })();
+</script>

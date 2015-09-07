@@ -1,0 +1,79 @@
+[{
+  "id": 1,
+  "name": "Metro List",
+  "createdOn": "Today",
+  "createdBy": "me",
+  "items": [{
+          "id": 1,
+          "name": "Sugar",
+          "qty": 1,
+          "unit": "Kg"
+        }, {
+          "id": 2,
+          "name": "Rice",
+          "qty": 25,
+          "unit": "Kg"
+        }, {
+          "id": 3,
+          "name": "Sunflower Refined Oil",
+          "qty": 1,
+          "unit": "Litre"
+        }, {
+          "id": 4,
+          "name": "Maral Fish",
+          "qty": 1,
+          "unit": "Kg"
+        }]
+}, {
+  "id": 2,
+  "name": "Forum List",
+  "createdOn": "3rd July 2015",
+  "createdBy": "Priti",
+  "items": [{
+          "id": 1,
+          "name": "Amul Ice-cream",
+          "qty": 1,
+          "unit": "Kg"
+        }, {
+          "id": 2,
+          "name": "Aashirwad Ata",
+          "qty": 20,
+          "unit": "Kg"
+        }, {
+          "id": 3,
+          "name": "Sunflower Refined Oil",
+          "qty": 1,
+          "unit": "Litre"
+        }, {
+          "id": 4,
+          "name": "Chicken",
+          "qty": 1,
+          "unit": "Kg"
+        }]
+}, {
+  "id": 3,
+  "name": "Monthly Grocery List",
+  "createdOn": "20th June 2015",
+  "createdBy": "Priti",
+  "items": [{
+          "id": 1,
+          "name": "Britannia 50-50",
+          "qty": 10,
+          "unit": "Packet"
+        }, {
+          "id": 2,
+          "name": "Rice",
+          "qty": 25,
+          "unit": "Kg"
+        }, {
+          "id": 3,
+          "name": "Cinthol Soap",
+          "qty": 5,
+          "unit": ""
+        }, {
+          "id": 4,
+          "name": "Himayat Mango",
+          "qty": 5,
+          "unit": "Kg"
+        }]
+}]

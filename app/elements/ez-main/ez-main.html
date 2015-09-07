@@ -1,0 +1,500 @@
+<dom-module id="ez-main">
+  <style>
+    :host {
+      display: block;
+      height: 100%;
+    }
+
+    :root {
+    --dark-primary-color: #455A64;
+    --default-primary-color: #607D8B;
+    --light-primary-color: #CFD8DC;
+    --text-primary-color: #ffffff; /*text/icons*/
+    --accent-color: #FF4081;
+    --primary-background-color: #c5cae9;
+    --primary-text-color: #212121;
+    --secondary-text-color: #727272;
+    --disabled-text-color: #bdbdbd;
+    --divider-color: #B6B6B6;
+
+    /* Components */
+
+    /* paper-drawer-panel */
+    --drawer-menu-color: #ffffff;
+    --drawer-border-color: 1px solid #ccc;
+    --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+
+    /* paper-menu */
+    --paper-menu-background-color: #fff;
+    --menu-link-color: #111111;
+  }
+
+  /* General styles */
+
+  #drawerToolbar {
+    color: var(--secondary-text-color);
+    background-color: var(--drawer-menu-color);
+    border-bottom: var(--drawer-toolbar-border-color);
+    height: 80px;
+    padding-top: 20px;
+  }
+
+  paper-material {
+    border-radius: 2px;
+    height: 100%;
+    padding: 16px 0 16px 0;
+    width: calc(98.66% - 16px);
+    margin: 16px auto;
+    background: white;
+  }
+
+  paper-menu iron-icon {
+    margin-right: 33px;
+    opacity: 0.54;
+  }
+
+  .paper-menu > .iron-selected {
+    color: var(--default-primary-color);
+  }
+
+  paper-menu a {
+    text-decoration: none;
+    color: var(--menu-link-color);
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    font-family: 'Roboto', 'Noto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 24px;
+    min-height: 48px;
+    padding: 0 16px;
+  }
+
+  #mainToolbar {
+    height: 80px;
+    padding-top: 15px;
+  }
+
+  #mainToolbar .middle {
+    margin-left: 48px;
+    padding-top: 30px;
+  }
+
+  #mainToolbar.has-shadow .middle {
+    font-size: 20px;
+    padding-bottom: 0;
+    margin-left: 48px;
+    padding-top: 30px;
+  }
+
+  /* Height of the scroll area */
+  .content {
+    height: 100%;
+  }
+
+  /* Breakpoints */
+
+  /* Small */
+  @media (max-width: 600px) {
+
+    paper-material {
+      --menu-container-display: none;
+      width: calc(97.33% - 32px);
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .paper-font-display1 {
+      font-size: 12px;
+    }
+
+    .app-name {
+      font-size: 26px;
+    }
+
+    #drawer .paper-toolbar {
+      margin-left: 16px;
+    }
+
+    #overlay {
+      min-width: 360px;
+    }
+
+    .bg {
+      background: white;
+    }
+
+  }
+
+  /* Tablet+ */
+  @media (min-width: 601px) {
+
+    paper-material {
+      width: calc(98% - 46px);
+      margin-bottom: 32px;
+      padding-left: 30px;
+      padding-right: 30px;
+    }
+
+    #drawer.paper-drawer-panel > [drawer] {
+      border-right: 1px solid rgba(0, 0, 0, 0.14);
+    }
+
+    iron-pages {
+      /*padding: 48px 62px;*/
+    }
+
+    #newFabBtn {
+      /*top: 15px;*/
+    }
+
+  }
+
+  /* Material Design Adaptive Breakpoints */
+  /*
+    Below you'll find CSS media queries based on the breakpoint guidance
+    published by the Material Design team. You can choose to use, customise
+    or remove these breakpoints based on your needs.
+
+    http://www.google.com/design/spec/layout/adaptive-ui.html#adaptive-ui-breakpoints
+   */
+
+  /* mobile-small */
+  @media all and (min-width: 0) and (max-width: 360px) and (orientation: portrait) { }
+  /* mobile-large */
+  @media all and (min-width: 361px) and (orientation: portrait) { }
+  /* mobile-small-landscape */
+  @media all and (min-width: 0) and (max-width: 480px) and (orientation: landscape) { }
+  /* mobile-large-landscape */
+  @media all and (min-width: 481px) and (orientation: landscape) { }
+  /* tablet-small-landscape */
+  @media all and (min-width: 600px) and (max-width: 960px) and (orientation: landscape) { }
+  /* tablet-large-landscape */
+  @media all and (min-width: 961px) and (orientation: landscape) { }
+  /* tablet-small */
+  @media all and (min-width: 600px) and (orientation: portrait) { }
+  /* tablet-large */
+  @media all and (min-width: 601px) and (max-width: 840px) and (orientation : portrait) { }
+  /* desktop-x-small-landscape */
+  @media all and (min-width: 0) and (max-width: 480px) and (orientation: landscape) { }
+  /* desktop-x-small */
+  @media all and (min-width: 0) and (max-width: 480px) and (max-aspect-ratio: 4/3) { }
+  /* desktop-small-landscape */
+  @media all and (min-width: 481px) and (max-width: 840px) and (orientation: landscape) { }
+  /* desktop-small */
+  @media all and (min-width: 481px) and (max-width: 840px) and (max-aspect-ratio: 4/3) { }
+  /* desktop-medium-landscape */
+  @media all and (min-width: 841px) and (max-width: 1280px) and (orientation: landscape) { }
+  /* desktop-medium */
+  @media all and (min-width: 841px) and (max-width: 1280px) and (max-aspect-ratio: 4/3) { }
+  /* desktop-large */
+  @media all and (min-width: 1281px) and (max-width: 1600px) { }
+  /* desktop-xlarge */
+  @media all and (min-width: 1601px) and (max-width: 1920px) { }
+  </style>
+
+  <template> 
+
+    <iron-localstorage name="ezfy-app-storage" value="{{user}}" on-iron-localstorage-load="onLSLoad"></iron-localstorage>
+  
+    <template is="dom-if" if="{{!user.authenticated}}">
+      <ez-auth id="ezAuth" auto-fit-on-attach on-authenticated="onUserAuthenticated"></ez-auth>
+    </template>
+
+    <template is="dom-if" if="{{user.authenticated}}">
+
+
+      <paper-drawer-panel id="paperDrawerPanel">
+        <div drawer>
+
+          <!-- Drawer Toolbar -->
+          <paper-toolbar id="drawerToolbar">
+            <iron-icon src="images/ezfy_logo_pink_small.png"></iron-icon>
+            <span class="paper-font-title">Ezfy</span>
+          </paper-toolbar>
+
+          <!-- Drawer Content -->
+            <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
+                <a data-route="home" href="/">
+                  <iron-icon icon="home"></iron-icon>
+                  <span>Home</span>
+                </a>
+
+                <a data-route="favourites" href="/favourites">
+                  <iron-icon icon="icons:favorite"></iron-icon>
+                  <span>Favourites</span>
+                </a>
+
+                <!-- <a data-route="settings" href="/settings">
+                  <iron-icon icon="icons:settings"></iron-icon>
+                  <span>Settings</span>
+                </a> -->
+
+                <a data-route="changepwd" href="/changepwd">
+                  <iron-icon icon="communication:vpn-key"></iron-icon>
+                  <span>Change Password</span>
+                </a>
+
+                <a on-tap="logout" href="/">
+                  <iron-icon icon="icons:exit-to-app"></iron-icon>
+                  <span>Logout</span>
+                </a>
+            </paper-menu>
+        </div>
+        <paper-header-panel main>
+
+          <!-- Main Toolbar -->
+          <paper-toolbar id="mainToolbar" hidden$="{{isNotMainView(selectedView, items)}}">
+            <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
+            <span class="flex"></span>
+
+            <!-- Toolbar icons -->
+            <paper-fab mini id="newFabBtn" icon="icons:add" title="Add new list" tabindex="0" on-tap="createNewList"></paper-fab>
+
+            <!-- Application name -->
+            <div class="middle paper-font-display2 app-name">{{title}}</div>
+
+            <!-- Application sub title -->
+            <div class="bottom title"></div>
+          </paper-toolbar>
+
+          <!-- Main Content -->
+          <div class="content">
+            <iron-pages attr-for-selected="data-route" selected="{{selectedView}}">
+
+              <section data-route="home">
+
+                <firebase-collection 
+                        location="{{getListsLocation()}}" 
+                        data="{{items}}">
+                </firebase-collection>
+
+                <!-- <firebase-document
+                  location="{{getListsLocation()}}"
+                  data="{{lists}}">
+                </firebase-document> -->
+
+
+                <ez-lists 
+                          items="[[items]]" 
+                          type="all" 
+                          on-viewlist="onViewList" 
+                          on-createlist="startWithNewList" 
+                          on-addtofav="onAddToFavourite" 
+                          on-sharelist="onShareList">
+                </ez-lists>
+
+              </section>
+
+              <section data-route="favourites">
+
+                <firebase-collection 
+                        location="{{getListsLocation()}}" 
+                        order-by-child="favourite"
+                        order-value-type="boolean"  
+                        equal-to="true" 
+                        data="{{favitems}}">
+                </firebase-collection>
+
+                <ez-lists items="[[favitems]]" type="favourites" users="{{users}}" on-viewlist="onViewList" on-addtofav="onAddToFavourite" on-sharelist="onShareList"></ez-lists>
+              </section>
+
+              <section data-route="list">
+                <ez-list list="{{selectedList}}" action="{{listAction}}" on-backtolists="onBackToListsView"></ez-list>
+              </section>
+
+              <section data-route="share">
+                <ez-share list="{{selectedList}}" action="{{listAction}}" on-backtolists="onBackToListsView"></ez-list>
+              </section>
+
+              <section data-route="changepwd">
+                <ez-changepwd on-changepwd="onChangePwd"></ez-changepwd>
+              </section>
+
+              <section data-route="settings">
+                <paper-material elevation="1">
+                  <h2 class="paper-font-display2">Settings</h2>
+                  <p>This is the settings section</p>
+                </paper-material>
+              </section>
+
+            </iron-pages>
+          </div>
+        </paper-header-panel>
+      </paper-drawer-panel>
+
+    </template>
+
+    <paper-toast id="caching-complete"
+                 duration="6000"
+                 text="Caching complete! This app will work offline.">
+    </paper-toast>
+
+    <platinum-sw-register auto-register
+                          clients-claim
+                          skip-waiting
+                          on-service-worker-installed="displayInstalledToast">
+      <platinum-sw-cache default-cache-strategy="networkFirst"
+                         precache-file="precache.json">
+      </platinum-sw-cache>
+    </platinum-sw-register>
+
+  </template>
+  </dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-main',
+      properties: {
+        title: {
+          type: String,
+          notify: true,
+          value: 'Your Lists'
+        },
+        // items: {
+        //   type: Array,
+        //   notify: true,
+        //   observer: 'itemsChanged'
+        // },
+        users: {
+          type: Object,
+          notify: true
+        },
+        user: {
+          type: Object,
+          notify: true
+        }, 
+        selectedView: {
+          type: String,
+          value: "home",
+          observer: 'selectedViewChanged'
+        },
+        selectedList: {
+          type: Object,
+          notify: true
+        },
+        listAction: {
+          type: String,
+          notify: true
+        }
+      },
+      ready: function() {
+        this.user = {
+          authenticated: false
+        };
+      },
+      getListsLocation: function() {
+        return Ezfy.BASE_FB_URL + Ezfy.user.uid + "/lists";
+      },
+      selectedViewChanged: function(view) {
+        // console.log('selectedViewChanged: ' + view);
+        if (view === 'favourites') {
+          this.set('title', 'Your Favourite Lists');
+        }
+
+        if (view === 'home') {
+         this.set('title', 'Your Lists'); 
+        }
+
+        if (view === 'changepwd') {
+          this.set('title', 'Change Password');
+        }
+      },
+      onMenuSelect: function(e) {
+        this.selectedView = e.model.route;
+        var drawerPanel = document.querySelector('#paperDrawerPanel');
+        if (drawerPanel.narrow) {
+          drawerPanel.closeDrawer();
+        }
+      },
+      itemsChanged: function(items) {
+      },
+      isNotMainView: function() {
+        return (this.selectedView === 'home' || this.selectedView === 'favourites' || this.selectedView === 'changepwd') ? false: true;
+      },
+      onViewList: function(e, list) {
+        // console.log('onViewList: ', arguments);
+
+        this.listAction = "view";
+        this.selectedList = list;
+        this.selectedView = "list";
+      },
+      onAddToFavourite: function() {
+        // console.log('onAddToFavourite: ', arguments);
+      },
+      onShareList: function(e, list) {
+        // console.log('onShareList: ', arguments);
+
+        // this.listAction = "view";
+        this.selectedList = list;
+        this.selectedView = "share";
+      },
+      onBackToListsView: function() {
+        // console.log('onBackToListsView: ', arguments);
+
+        this.selectedView = "home";
+        this.selectedList = null;
+
+        this.listAction = "";
+      },
+      startWithNewList: function() {
+        this.selectedList = {
+          name: "New List"
+        };
+
+        this.listAction = "create";
+        this.selectedView = "list";
+
+      },
+      createNewList: function() {
+        this.selectedList = {
+          name: "New List"
+        };
+
+        this.listAction = "create";
+        this.selectedView = "list";
+
+      },
+      onUserAuthenticated: function(e, user) {
+        console.log('onUserAuthenticated: ', arguments);
+        var u = {
+          authenticated: true, 
+          uid: user.uid,
+          name: user.name,
+          gaHash: user.gaHash
+        };
+
+        this.set('user', u);
+
+        //set the global user
+        Ezfy.user = u;
+
+
+      },
+      onLSLoad: function() {
+        if (this.user)
+          Ezfy.user = this.user;
+      },
+      logout: function() {
+        this.$$("#ezAuth").logout();
+
+        this.set('user', null);
+        location.href = "/"
+      },
+      onChangePwd: function(e) {
+        var data = e.detail.data;
+
+        this.$$("#ezAuth").changePwd(data.email, data.oldPassword, data.newPassword);
+      }
+    });
+  })();
+</script>

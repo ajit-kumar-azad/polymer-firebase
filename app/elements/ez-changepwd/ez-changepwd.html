@@ -1,0 +1,96 @@
+<dom-module id="ez-changepwd">
+  <style>
+    :host {
+      @apply(--layout);
+      
+      /*background-color: var(--paper-light-blue-500);*/
+      /*color: white;*/
+      text-align: center;
+      align-items:center;
+      -webkit-align-items: center;
+      justify-content:center;
+      -webkit-justify-content:center;
+    }
+
+    #signInError {
+      text-align: start;
+    }
+
+    paper-dialog#dialog {
+      --paper-dialog-background-color: none;
+      box-shadow: none;
+    }
+
+    paper-button {
+      display: block;
+      margin-bottom: 24px;
+    }
+
+    paper-button.primary {
+      background-color: #3F51B5;
+      color: #fff;
+    }
+
+    paper-button.secondary {
+      /*background-color: #3F51B5;*/
+      color: #3F51B5;
+    }
+
+    .logo {
+      /*height: 150px;*/
+      /*margin-top: 64px;*/
+      /*margin-left: 80px;*/
+      /*background-image: url(images/ezfy_logo_pink_small.png);*/
+      /*background-image: url(https://wtcindia.files.wordpress.com/2015/07/gravatar.png);
+      background-repeat: no-repeat;*/
+      height: 87px;
+      width: 72px;
+      /*margin-bottom: 100px;*/
+    }
+
+  </style>
+  <template>
+<!--     <paper-dialog id="dialog" modal>
+      <paper-spinner active></paper-spinner>
+    </paper-dialog>
+ -->
+    <!-- <paper-toast id="toast" text="{{msg}}"></paper-toast> -->
+    <div>
+      <form is="iron-form" id="formGet" method="get" action="/">
+        <paper-input name="email" type="email" label="E-mail" required value$="{{email}}"></paper-input>
+        <paper-input name="oldPassword" type="password" label="Old Password" required></paper-input>
+        <paper-input name="newPassword" type="password" label="New Password" required></paper-input>
+        <br>
+
+        <paper-button class="secondary" raised on-tap="changePwd">Change Password</paper-button>
+      </form>
+    </div>
+
+  </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-changepwd',
+      behaviors: [
+        Polymer.IronFitBehavior
+      ],
+      properties: {
+        email: {
+          type: String,
+          notify: true
+        }
+      },
+      ready: function() {
+        this.set('email', Ezfy.user.name);
+      },
+      changePwd: function() {
+        // this.$.dialog.open();
+
+        var formData = Polymer.dom(event).localTarget.parentElement.serialize();
+
+        this.fire("changepwd", {data: formData});
+      }
+    });
+  })();
+</script>

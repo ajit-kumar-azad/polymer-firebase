@@ -1,0 +1,205 @@
+<dom-module id="ez-share">
+  <style>
+    :host {
+      display: block;
+    }
+
+    input[is="iron-input"] {
+      font: inherit;
+      outline: none;
+      box-shadow: none;
+      border: none;
+      width: auto;
+      /*text-align: center;*/
+    }
+
+    .floating-list {
+      position: absolute;
+      z-index: 1000;
+      background-color: #eee;
+      width: 100%;
+    }
+
+    .floating-list a {
+      float: left;
+      list-style: none;
+      background-color: yellow;
+      padding: 20px;
+      margin: 20px;
+      cursor: pointer;
+    }
+
+    #mainToolbar {
+      padding-top: 20px;
+      height: 80px;
+    }
+
+    .list-name {
+      font-size: 20px;
+    }
+
+    /*paper-material.ez-share {
+      border-radius: 2px;
+      height: 100%;
+      padding: 16px 0 16px 0;
+      width: calc(98.66% - 16px);
+      margin: 16px auto;
+      background: white;
+    }*/
+
+    /*@media (max-width: 600px) {
+      paper-material.ez-share {
+        width: calc(97.33% - 32px);
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+    }
+
+    @media (min-width: 601px) {
+      paper-material.ez-share {
+        width: calc(98% - 46px);
+        margin-bottom: 32px;
+        padding-left: 30px;
+        padding-right: 30px;
+      }
+
+    }*/
+
+    paper-material.ez-share {
+        width: 100%;
+        border-bottom: #ddd;
+        border-bottom-style: dashed;
+        border-bottom-width: thin;
+        /*padding: 16px 0 16px 0;*/
+        background: white;
+    }
+
+  </style>
+    <template>
+      <paper-toast id="toast" text="{{msg}}"></paper-toast>
+
+          <paper-toolbar id="mainToolbar">
+            <!-- <paper-button tabindex="0" on-tap="goBack"> -->
+            <paper-icon-button icon="hardware:keyboard-arrow-left" on-tap="goBack"></paper-icon-button>
+            <span class="flex"></span>
+            <div class="paper-font-display2 list-name">{{list.name}}</div>
+            <!-- <iron-icon icon="hardware:keyboard-arrow-left"></iron-icon>
+            Back
+            </paper-button> -->
+            <!-- <span class="flex"></span>
+            <h1>{{list.name}}</h1> -->
+            <span class="flex"></span>
+            <!-- <paper-icon-button icon="icons:done" title="Done sharing" tabindex="0" on-tap="handleDoneSharing"></paper-icon-button> -->
+          </paper-toolbar>
+
+          <paper-input-container always-float-label hidden$="{{!editing}}">
+            <label>Add User</label>
+            <ez-share-add-user class="paper-input-input" on-additem="addNewItem"></ez-share-add-user>
+          </paper-input-container>
+
+          <template is="dom-if" if="{{!users.length}}">
+            <ez-emptylist-placeholder imgsrc="images/users.svg" emptytxt="No Users" msgtxt="You may add one or more users to share the list."></ez-emptylist-placeholder>
+          </template>
+
+          <iron-selector>
+            <template is="dom-repeat" items="{{users}}">
+              <paper-material elevation="0">
+                <ez-share-item user="{{item}}" on-removeitem="removeItem"></ez-share-item>
+              </paper-material>
+            </template>
+          </iron-selector>
+
+    </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-share',
+      properties: {
+        list: {
+          type: Object,
+          notify: true,
+          observer: 'listChanged'
+        },
+        users: {
+          type: Array,
+          notify: true,
+          value: []
+        },
+        msg: {
+          type: String
+        }
+      },
+      ready: function() {
+        
+      },
+      listChanged: function(list) {
+        var me = this;
+
+        if (!list) {
+          return;
+        }
+
+        var fbRef = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid + "/sharedbyme/" + list.id);
+        fbRef.on('value', function(snapshot) {
+          // console.log('Users: ', snapshot.val());
+          var usersObj = snapshot.val();
+          var users = [];
+          for (var userId in usersObj) {
+            var o = usersObj[userId];
+            users.push({
+                uid: o.uid,
+                sharedUid: userId,
+                name: o.name,
+                gaHash: o.gaHash
+              });
+          }
+
+          me.set('users', users);
+        });
+      },
+      addNewItem: function(e, itemObj) {
+        // console.log('addNewItem', arguments);
+
+        // this.push('users', itemObj);
+
+        var fbRef = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid +  "/sharedbyme/" + this.list.id);
+        var newitem = fbRef.push({
+          name: itemObj.name,
+          uid: itemObj.uid,
+          gaHash: itemObj.gaHash
+        });
+
+        var fbRef1 = new Firebase(Ezfy.BASE_FB_URL + itemObj.uid +  "/lists");
+        fbRef1.child(this.list.id).set({
+          name: this.list.name,
+          id: this.list.id,
+          favourite: false,
+          createdBy: Ezfy.user.uid,
+          createdOn: this.list.createdOn
+        });
+
+        this.set('msg', this.list.name + ' has been shared with ' + itemObj.name);
+        this.$.toast.show();
+      },
+      removeItem: function(e) {
+        // console.log('removeItem: ',e, e.model.item, e.model.index);
+
+        var fbRef = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid +  "/sharedbyme/" + this.list.id + "/" + e.model.item.sharedUid);
+        fbRef.set(null);
+
+        var fbRef1 = new Firebase(Ezfy.BASE_FB_URL + e.model.item.uid +  "/lists/" + this.list.id);
+        fbRef1.set(null);
+
+      },
+      goBack: function(e) {
+        // console.log('goBack: ', arguments);
+        this.fire('backtolists');
+      }/*,
+      onUsersLoaded: function(e, users) {
+        this.fire('usersloaded', users);
+      }*/
+    });
+  })();
+</script>

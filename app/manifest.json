@@ -1,17 +1,17 @@
 {
-  "name": "Polymer Starter Kit",
-  "short_name": "Polymer Starter Kit",
+  "name": "ezfy",
+  "short_name": "ezfy",
   "icons": [{
-        "src": "images/touch/icon-128x128.png",
+        "src": "elements/ez-auth/images/ezfy_logo_pink.png",
         "sizes": "128x128"
       }, {
-        "src": "images/touch/apple-touch-icon.png",
+        "src": "elements/ez-auth/images/ezfy_logo_pink.png",
         "sizes": "152x152"
       }, {
-        "src": "images/touch/ms-touch-icon-144x144-precomposed.png",
+        "src": "elements/ez-auth/images/ezfy_logo_pink.png",
         "sizes": "144x144"
       }, {
-        "src": "images/touch/chrome-touch-icon-192x192.png",
+        "src": "elements/ez-auth/images/ezfy_logo_pink.png",
         "sizes": "192x192"
       }],
   "start_url": "/#!/",

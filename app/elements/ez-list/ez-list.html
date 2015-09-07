@@ -1,0 +1,316 @@
+<dom-module id="ez-list">
+  <style>
+    :host {
+      display: block;
+    }
+
+    .iron-selected {
+      /*background: #eee;*/
+    }
+
+    paper-input-container input {
+      font-size: 1em !important;
+      font-weight: bold !important;
+      color: white !important;
+    }
+
+    ez-list-item {
+      border-style: dashed;
+      border-top-style: none;
+      border-left-style: none;
+      border-right-style: none;
+      border-bottom-width: thin;
+      border-color: #ccc;
+
+      /*background: white;
+      transition-property: background;
+      transition-duration: .5s;
+      transition-timing-function: linear;*/
+    }
+
+    ez-list-item[data-behavior="viewonly"]:active {
+      background: #FF4081;
+      cursor: pointer;
+    }
+
+    /*ez-list-item:hover {
+      background: #C5CAE9;
+    }*/
+
+    .blackbg {
+      background-color: #666;
+      color: white;
+      text-decoration: line-through;
+    }
+
+  #mainToolbar {
+    height: 80px;
+    padding-top: 15px;
+    margin-bottom: 10px;
+  }
+
+  #mainToolbar.has-shadow .middle {
+    font-size: 20px;
+    padding-bottom: 0;
+    margin-left: 48px;
+    padding-top: 30px;
+  }
+
+    #mainToolbar {
+      padding-top: 20px;
+      height: 80px;
+      @apply(--shadow-elevation-2dp);
+    }
+
+    .list-name {
+      font-size: 20px;
+    }
+
+    paper-dialog {
+      width: 80%;
+    }
+
+  </style>
+  <template>
+    <paper-toolbar id="mainToolbar">
+      <paper-icon-button icon="hardware:keyboard-arrow-left" on-tap="goBack"></paper-icon-button>
+      <!-- <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button> -->
+      <!-- <paper-button tabindex="0" on-tap="goBack">
+        <iron-icon icon="hardware:keyboard-arrow-left"></iron-icon>
+        Back
+      </paper-button> -->
+      <span class="flex"></span>
+      <!-- <h1 hidden$="{{editingName}}">{{getListName(list)}}</h1> -->
+      <!-- <h1 hidden$="{{editingName}}">{{list.name}}</h1> -->
+      <div hidden$="{{editing}}" class="paper-font-display2 list-name">{{list.name}}</div>
+      
+      <paper-input-container always-float-label hidden$="{{!editing}}">
+        <input class="paper-input-input" autofocus is="iron-input" bind-value="{{list.name}}" aria-label="Item" on-focusout="onListNameFocusOut" tabIndex="0"></input>
+      </paper-input-container>
+
+      <!-- <paper-icon-button hidden$="{{editingName}}" icon="editor:mode-edit" title="Edit list" tabindex="0" on-tap="handleNameEdit"></paper-icon-button> -->
+      <span class="flex"></span>
+
+      <!-- Toolbar icons -->
+      <!-- <paper-icon-button icon="icons:add" title="Add new item" tabindex="0" on-tap="addNewItem"></paper-icon-button> -->
+      <paper-icon-button icon="editor:mode-edit" title="Edit list" tabindex="0" hidden$="{{editing}}" on-tap="handleEdit"></paper-icon-button>
+      <paper-icon-button icon="icons:done" title="Done editing" tabindex="0" hidden$="{{!editing}}" on-tap="handleDoneEdit"></paper-icon-button>
+<!--       <paper-icon-button icon="icons:close" title="Cancel editing" tabindex="0" hidden$="{{!editing}}"></paper-icon-button> -->
+    </paper-toolbar>
+    <paper-input-container always-float-label hidden$="{{!editing}}">
+      <label>New Item</label>
+      <ez-list-new-item class="paper-input-input" on-additem="addNewItem"></ez-list-new-item>
+    </paper-input-container>
+
+    <firebase-collection id="openItems" 
+            location="{{getListLocation(list)}}" 
+            order-by-child="closed"
+            order-value-type="boolean"  
+            equal-to="false"
+            data="{{items}}">
+    </firebase-collection>
+
+    <firebase-collection id="closedItems" 
+            location="{{getListLocation(list)}}" 
+            order-by-child="closed"
+            order-value-type="boolean"  
+            equal-to="true" 
+            data="{{closedItems}}">
+    </firebase-collection>
+      
+    <iron-selector>
+      <template is="dom-repeat" items="{{items}}">
+          <ez-list-item item="{{item}}" itemLoc="{{getItemLoc(item)}}" data-behavior="viewonly" editing="{{editing}}" on-addnote="addNoteToItem" on-tap="closeItem" on-removeitem="removeItem"></ez-list-item>
+      </template>
+    </iron-selector>
+
+    <iron-selector>
+      <template is="dom-repeat" items="{{closedItems}}">
+          <ez-list-item class="blackbg" itemLoc="{{getItemLoc(item)}}" item="{{item}}" data-behavior="viewonly" editing="{{editing}}" on-tap="openItem"></ez-list-item>
+      </template>
+    </iron-selector>
+  </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-list',
+      properties: {
+        list: {
+          type: Object,
+          notify: true
+          // observer: 'listChanged'
+        },
+        items: {
+          type: Array,
+          notify: true,
+          value: []
+        },
+        item: {
+          type: Object,
+          notify: true,
+          value: {}
+        },
+        itemLoc: {
+          type: String,
+          notify: true,
+          value: ""
+        }, 
+        closedItems: {
+          type: Array,
+          notify: true,
+          value: []
+        },
+        editing: {
+          type: Boolean,
+          notify: true,
+          value: false
+        },
+        action: {
+          type: String,
+          notify: true
+        }
+      },
+      observers: [
+        'actionChanged(action)',
+        'listChanged(list.id)'
+      ],
+      ready: function() {
+        this.closedItems.length = 0;
+      },
+      getListLocation: function(list) {
+        if (list) {
+          console.log('Returning..' + Ezfy.BASE_FB_URL + list.createdBy + "/listitems/" + list.id);
+          return Ezfy.BASE_FB_URL + list.createdBy + "/listitems/" + list.id;
+        }
+      },
+      getItemLoc: function(item) {
+        // console.log("Item loc set to: " + Ezfy.BASE_FB_URL + this.list.createdBy + "/listitems/" + this.list.id + "/" + item.__firebaseKey__);
+        return Ezfy.BASE_FB_URL + this.list.createdBy + "/listitems/" + this.list.id + "/" + item.__firebaseKey__;
+      },
+      listChanged: function(listId) {
+      },
+      actionChanged: function(action) {
+        // console.log('actionChanged....' + action);
+
+        if (action === 'view') {
+          this.editing = false;
+        }
+
+        var fromListId = null;
+        var fromCreatedBy = null;
+
+        if (action === 'create' || action === 'copyncreate') {
+          // if (action === 'copyncreate') {
+          //   fromListId = this.list.id;
+          //   fromCreatedBy = this.list.createdBy
+          // }
+
+          this.editing = true;
+
+          //create a list in Firebase
+          var listsRef = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid + "/lists");
+
+          // console.log('Pushing...', this.list);
+
+          this.list.favourite = false;
+          this.list.createdBy = Ezfy.user.uid;   //TODO: stamp user name, instead
+          this.list.createdOn = (new Date()).toDateString();
+
+          // if (action === 'create') {
+          //   this.list.totalCnt = 0;
+          //   this.list.pendingCnt = 0;
+          // }
+
+          var newList = listsRef.push(this.list);
+          // console.log('Setting id: ' + newList.key());
+
+          this.list.id = newList.key();
+
+          // this.setupWatcherForList(this.list);
+          var me = this;
+
+          if (action === 'create') {
+            me.set('items', []);
+            me.set('closedItems', []);
+
+            // console.log('CHANGING LIST TO: ', me.list);
+            me.set('list', me.list);
+            me.set('list.id', me.list.id);
+          }
+        }
+      },
+      closeItem: function(e) {
+        // console.log('closeItem');
+
+        var me = this;
+        
+        //ignore if the list is being edited
+        if (!this.editing) {          
+
+          this.$.openItems.remove(e.model.item);
+          e.model.item.closed = true;
+          this.$.closedItems.add(e.model.item);
+        }
+      },
+      openItem: function(e) {
+        var model = e.model;
+
+        //ignore if the list is being edited
+        if (!this.editing) {
+          this.$.closedItems.remove(e.model.item);
+          e.model.item.closed = false;
+          this.$.openItems.add(e.model.item);
+        }
+      },
+      goBack: function(e) {
+        // console.log('goBack: ', arguments);
+        this.fire('backtolists');
+      },
+      addNewItem: function(e, itemObj) {
+        // console.log('addNewItem', arguments);
+
+        this.$.openItems.add({
+          name: itemObj.thing.name,
+          closed: false
+        });
+      },
+      removeItem: function(e) {
+        // console.log('removeItem: ' + e.model.index);
+
+        var fbRef = new Firebase(Ezfy.BASE_FB_URL + this.list.createdBy + "/listitems/" + this.list.id + "/" + e.model.item.__firebaseKey__);
+        fbRef.set(null);
+      },
+      handleEdit: function() {
+        this.editing = true;
+
+        //remove the style of highlighting the active item
+        this.updatedAttributes("data-behavior", "viewonly", "editing");
+      },
+      updatedAttributes: function(attr, oldVal, newVal) {
+        var nodes = this.querySelectorAll("ez-list-item");
+        var l = nodes.length;
+        for (var i=0; i<l; i++) {
+          nodes[i].setAttribute(attr, newVal);
+        }
+      },
+      handleDoneEdit: function() {
+        this.editing = false;
+
+        this.updatedAttributes("data-behavior", "editing", "viewonly");
+      },
+      onListNameFocusOut: function() {
+
+        //update list name
+        var fbRef = new Firebase(Ezfy.BASE_FB_URL + this.list.createdBy + "/lists/" + this.list.id);
+        fbRef.set(this.list);
+      },
+      addNoteToItem: function(e, obj) {
+
+        var fbRef = new Firebase(Ezfy.BASE_FB_URL + this.list.createdBy + "/listitems/" + this.list.id + "/" + obj.item.__firebaseKey__);
+        fbRef.update({note: obj.note});
+      }
+
+    });
+  })();
+</script>

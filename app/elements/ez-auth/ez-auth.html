@@ -1,0 +1,331 @@
+<dom-module id="ez-auth">
+  <style>
+    :host {
+      @apply(--layout);
+      
+      /*background-color: var(--paper-light-blue-500);*/
+      /*color: white;*/
+      text-align: center;
+      align-items:center;
+      -webkit-align-items: center;
+      justify-content:center;
+      -webkit-justify-content:center;
+    }
+
+    #signInError {
+      text-align: start;
+    }
+
+    paper-dialog#dialog {
+      --paper-dialog-background-color: none;
+      box-shadow: none;
+    }
+
+    paper-button {
+      display: block;
+      margin-bottom: 24px;
+    }
+
+    paper-button.primary {
+      background-color: #3F51B5;
+      color: #fff;
+    }
+
+    paper-button.secondary {
+      /*background-color: #3F51B5;*/
+      color: #3F51B5;
+    }
+
+    .logo {
+      /*height: 150px;*/
+      /*margin-top: 64px;*/
+      /*margin-left: 80px;*/
+      /*background-image: url(images/ezfy_logo_pink_small.png);*/
+      /*background-image: url(https://wtcindia.files.wordpress.com/2015/07/gravatar.png);
+      background-repeat: no-repeat;*/
+      height: 87px;
+      width: 72px;
+      /*margin-bottom: 100px;*/
+    }
+
+    .legaltxt {
+      font-size: 0.5em;
+      color: #666;
+    }
+
+    .wtclogo {
+      height: 50px;
+      width: 50px;
+    }
+
+  </style>
+  <template>
+    <paper-dialog id="signInError" autoCloseDisabled>
+      <h2>Sign In Error</h2>
+      <p>{{msg}}</p>
+      <div class="buttons">
+        <paper-button dialog-dismiss>No</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="resetPwdAction">Yes</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="dialog" modal autoCloseDisabled>
+      <paper-spinner active></paper-spinner>
+    </paper-dialog>
+
+    <paper-toast id="toast" text="{{msg}}"></paper-toast>
+    <div>
+      <!-- <div class="logo"> -->
+        <!-- <h1>ezfy</h1> -->
+      <!-- </div> -->
+      <!-- <iron-icon class="logo" src="images/ezfy_logo_pink_small.png"></iron-icon> -->
+
+      <firebase-auth id="firebaseAuth" 
+                      user="{{user}}" 
+                      status-known="{{statusKnown}}" 
+                      location="{{fbLocation}}" 
+                      provider="{{provider}}" 
+                      redirect="false"
+                      on-login="onLogin" 
+                      on-error="onError" 
+                      on-user-created="onUserCreated" 
+                      on-password-changed="onPwdChanged">
+      </firebase-auth>
+
+
+      <form is="iron-form" id="formGet" method="get" action="/">
+        <paper-input name="email" type="email" label="E-mail" required></paper-input>
+        <paper-input name="password" type="password" label="Password" required hidden$="{{resetpwd}}"></paper-input>
+<!--         <paper-input name="password" type="password" label="Old Password" required></paper-input>
+        <paper-input name="confirmpassword" type="password" label="Confirm Password" hidden$="{{!chpwd}}" required></paper-input> -->
+        <br>
+
+<!--         <paper-button class="primary" raised on-tap="changePwd" hidden$="{{!chpwd}}">Change Password</paper-button> -->
+        <paper-button class="primary" raised on-tap="resetPwd" hidden$="{{!resetpwd}}">Reset Password</paper-button>
+        <paper-button class="primary" raised on-tap="signIn" hidden$="{{resetpwd}}">Sign In</paper-button>
+        <paper-button class="secondary" raised on-tap="signUp" hidden$="{{resetpwd}}">Create a Free Account</paper-button>
+      </form>
+
+      <br><br>
+      <paper-fab src="images/facebook.svg" title="Facebook" provider="facebook" tabindex="0" on-tap="fbAuth"></paper-fab>
+      <paper-fab src="images/gplus.svg" title="Google +" provider="google" tabindex="0" on-tap="gplusAuth"></paper-fab>
+      <paper-fab src="images/twitter.svg" title="Twitter" provider="twitter" tabindex="0" on-tap="twitterAuth"></paper-fab>
+      <paper-fab src="images/github.svg" title="GitHub" provider="github" tabindex="0" on-tap="githubAuth"></paper-fab>
+    
+        <br>
+        <p class="legaltxt" hidden$="{{resetpwd}}">By signing in you are agreeing to our <a href="" on-tap="openTermsOfService">Terms of service</a> and <a href="" on-tap="openPrivacyPolicy">Privacy Policy</a></p>
+      <p class="legaltxt"><span>&copy;</span>{{getCopyrightTxt()}}</p>
+      <iron-icon class="wtclogo" src="images/wtc_grey_logo.png"></iron-icon>
+    </div>
+
+  </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-auth',
+      behaviors: [
+        Polymer.IronFitBehavior
+      ],
+      properties: {
+        provider: {
+          type: String,
+          value: 'password'
+        },
+        fbLocation: {
+          type: String,
+          value: "https://devfestdc15.firebaseio.com/" //Ezfy.BASE_FB_URL
+        },
+        email: {
+          type: String,
+          value: ''
+        },
+        chpwd: {
+          type: Boolean,
+          notify: true,
+          value: false
+        },
+        resetpwd: {
+          type: Boolean,
+          notify: true,
+          value: false
+        }
+      },
+      getCopyrightTxt: function() {
+        var BASE_YEAR = 2015;
+        var s = "Walking Tree Consultancy Services Pvt. Ltd.";
+        var yr = (new Date()).getFullYear();
+
+        if (yr != BASE_YEAR) {
+          return BASE_YEAR + "-" + yr + ", " + s;  
+        } else {
+          return yr + ", " + s;  
+        }
+      },
+      openPrivacyPolicy: function() {
+        var ref = window.open("http://walkingtree.in/index.php/privacy-policy", '_blank');
+      },
+      openTermsOfService: function() {
+        var ref = window.open("http://walkingtree.in/index.php/terms-of-services", '_blank');
+      },
+      resetPwd: function() {
+        //no action
+      },
+      resetPwdAction: function() {
+        this.set('resetpwd', true);
+      },
+
+      //NOTE: I have modified the createUser method of firebase-auth element to return the
+      //user object
+      onUserCreated: function(e) {
+        var msg = "You have been registered successfully. You will be logged in, now!";
+
+        var userData = e.detail.user;
+        var me = this;
+
+        console.log(msg, e, userData);
+
+        me.set('msg', msg);
+        me.$.toast.show();
+
+        //add to users list
+        var usersRef = new Firebase(Ezfy.BASE_FB_URL + "users/" + userData.uid);
+        usersRef.set({
+          name: this.email,
+          uid: userData.uid,
+          gaHash: MD5(this.email)
+        });
+
+        me.fire('authenticated', userData);
+      },
+      signUp: function() {
+        this.$.dialog.open();
+
+        var formData = Polymer.dom(event).localTarget.parentElement.serialize();
+        console.log('signUp: ', arguments, formData);
+
+        this.email = formData.email;
+
+        this.$.firebaseAuth.createUser(formData.email, formData.password);
+      },
+      onError: function(e) {
+        this.$.dialog.close();
+
+        var me = this;
+        
+        switch (e.detail.code) {
+          case "TRANSPORT_UNAVAILABLE":
+            me.set('msg', "Transport Unavailable.");
+            me.$.toast.show();
+            break;
+          case "INVALID_EMAIL":
+            me.set('msg', "The specified user account email is invalid.");
+            me.$.toast.show();
+            break;
+          case "INVALID_PASSWORD":
+            me.set('msg', "The specified user account password is incorrect. Do you want to reset the password?");
+            // me.$.toast.show();
+            me.$.signInError.open();
+            break;
+          case "NETWORK_ERROR":
+            me.set('msg', "Failed to contact the server. Looks like the device is not connected to the network.");
+            me.$.toast.show();
+            break;
+          default:
+            me.set('msg', e.detail.message);
+            me.$.toast.show();
+            console.log("Error singing in user:", e.detail);
+        }
+      },
+      onLogin: function(e) {
+        this.$.dialog.close();
+
+        var me = this;
+
+        console.log("Authenticated successfully with payload:", e.detail.user);
+        var authData = e.detail.user;
+
+        var provider = e.detail.user.provider;
+        if (provider === "twitter") {
+          //add to users list
+          var usersRef = new Firebase(Ezfy.BASE_FB_URL + "users/" + authData.uid);
+          usersRef.on('value', function(snapshot) {
+            var u = null;
+
+            if (!snapshot.val()) {
+              u = {
+                name: authData.twitter.displayName,
+                uid: authData.uid,
+                gaHash: authData.twitter.username //this is not a valid hash. just setting for the sake of it
+              };
+              usersRef.set(u);
+            } else {
+              u = snapshot.val();
+            }
+
+            usersRef.off('value');
+
+            me.fire('authenticated', u);
+          });
+        }
+
+        if (provider === "password") {
+          // get the user detail
+          var fbRef1 = new Firebase(Ezfy.BASE_FB_URL + "users/" + e.detail.user.uid);
+          fbRef1.on('value', function(snapshot) {
+
+            me.fire('authenticated', snapshot.val());
+          });
+        }
+      },
+      signIn: function(event) {
+        this.$.dialog.open();
+
+        var formData = Polymer.dom(event).localTarget.parentElement.serialize();
+        console.log('signIn: ', arguments, formData);
+
+        this.$.firebaseAuth.login(formData);
+      },
+      twitterAuth: function() {
+        this.provider = "twitter";
+
+        this.doLogin();
+      },
+      gplusAuth: function() {
+        this.provider = "google";
+
+        this.doLogin();
+      },
+      fbAuth: function() {
+        this.provider = "facebook";
+
+        this.doLogin();
+      },
+      githubAuth: function() {
+        this.provider = "github";
+
+        this.doLogin();
+      },
+      doLogin: function() {
+        this.$.dialog.open();
+        this.$.firebaseAuth.login();
+      },
+      logout: function() {
+        this.$.firebaseAuth.logout();
+      },
+      changePwd: function(email, oldPassword, newPassword) {
+        console.log('changing password....', arguments);
+        this.$.dialog.open();
+        this.$.firebaseAuth.changePassword(email, oldPassword, newPassword);
+      },
+      onPwdChanged: function(e) {
+        // console.log('PASSWORD CHANGED....');
+        this.$.dialog.close();
+
+        this.set('msg', "Your password has been changed successfully.");
+        this.$.toast.show();
+      }
+
+    });
+  })();
+</script>

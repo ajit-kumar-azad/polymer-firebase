@@ -1,0 +1,295 @@
+<dom-module id="ez-list-new-item">
+  <style>
+    :host {
+      display: block;
+      margin-left: 5px;
+    }
+
+    input[is="iron-input"] {
+      font: inherit;
+      outline: none;
+      box-shadow: none;
+      border: none;
+      width: calc(100% - 6em - 3em);
+      text-align: center;
+    }
+
+    .floating-list {
+      position: absolute;
+      z-index: 1000;
+      background-color: #eee;
+      width: 100%;
+    }
+
+    .greyicon {
+      color: #666;
+    }
+
+    .floating-list a {
+      float: left;
+      list-style: none;
+      background-color: #FF4081;
+      color: white;
+      padding: 5px;
+      margin: 4px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .transparent {
+      opacity: 0.5;
+    }
+
+    .opaque {
+      opacity: 1;
+    }
+
+    .hand {
+      cursor: pointer;
+    }
+
+  </style>
+    <template>
+        <input placeholder="e.g. 6 cans of Bad Penny, Hyderabad, भारत, Wireframes" is="iron-input" autofocus bind-value="{{thing.name}}" aria-label="Item" tabIndex="1"></input>
+        <!-- <iron-icon icon="icons:remove-circle-outline" class="hand greyicon" on-tap="decrementQty"></iron-icon> -->
+        <!-- <input placeholder="1" is="iron-input" style="width:40px;" type="number" id="qtyFld" value$="{{qty}}" bind-value="{{qty}}" prevent-invalid-input allowed-pattern="[0-9.]" aria-label="Quantity" tabIndex="2" on-focusout="onQtyFocusOut"></input> -->
+        <!-- <iron-icon icon="icons:add-circle-outline" class="hand greyicon" on-tap="incrementQty"></iron-icon> -->
+        <!-- <input placeholder="Packet" is="iron-input" id="unitFld" bind-value="{{unit.name}}" on-focus="onUnitFocus" on-focusout="onUnitFocusOut" aria-label="Unit" on-keyup="onUnitChange" tabIndex="3"></input> -->
+        <paper-button on-click="addEntry" tabIndex="4">Add</paper-button>
+        <!-- <div hidden="true" id="matchlist" class="floating-list">
+            <template is="dom-repeat" items="{{filteredItems}}">
+              <a on-tap="selectThing">{{item.name}}</a>
+            </template>
+        </div> -->
+    </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-list-new-item',
+      properties: {
+        thing: {
+          type: Object,
+          notify: true
+        } 
+        // qty: {
+        //   type: Number,
+        //   value: 1
+        // }, 
+        // unit: {
+        //   type: Object
+        // }, 
+        // masterItems: {
+        //   type: Array,
+        //   value: []
+        // }, 
+        // units: {
+        //   type: Array,
+        //   notify: true,
+        //   value: []
+        // },
+        // filteredItems: {
+        //   type: Array,
+        //   notify: true,
+        //   value: []
+        // },
+        // type: {
+        //   type: String,    //'unit' or 'item'
+        //   notify: true
+        // }
+      },
+      ready: function() {
+        this.initValues();
+
+        //load masters
+        // this.loadMastersData();
+      },
+
+      // attached: function() {
+      //   this.set('qty', 1);
+      // },
+      // incrementQty: function() {
+      //   this.set('qty', this.qty + 1);
+      // },
+      // decrementQty: function() {
+      //   if (this.qty > 0) {
+      //     this.set('qty', this.qty - 1);
+      //   }
+      // },
+      // loadMastersData: function() {
+      //   var me = this;
+      //   var imRef = new Firebase(Ezfy.BASE_FB_URL + "masters/itemsmaster");
+      //   imRef.on('value', function(snapshot) {
+      //     // console.log('Items: ', snapshot.val());
+
+      //     var items = snapshot.val();
+      //     me.masterItems.length = 0;
+      //     for (var k in items) {
+      //       me.masterItems.push(items[k]);
+      //     }
+
+      //     // me.masterItems = snapshot.val();
+      //   });
+
+      //   var umRef = new Firebase(Ezfy.BASE_FB_URL + "masters/unitsmaster");
+      //   umRef.on('value', function(snapshot) {
+      //     // console.log('Units: ', snapshot.val());
+
+      //     var items = snapshot.val();
+      //     me.units.length = 0;
+      //     for (var k in items) {
+      //       me.units.push(items[k]);
+      //     }
+      //     // me.units = snapshot.val();
+      //   });
+      // },
+
+      initValues: function() {
+        this.thing = {
+          id: null,
+          name: "",
+          closed: false
+        };
+
+        // this.qty = 1;
+
+        // this.unit = {
+        //   id: null,
+        //   name: ""
+        // };
+
+        // this.type = 'item'
+      },
+      // _getFilteredItems: function() {
+      //   var filteredItems = [];
+      //   var l = this.masterItems.length;
+      //   for(var i=0; i<l; i++) {
+      //     var item = this.masterItems[i];
+      //     if (this.isMatchingItem(item)) {
+      //       var tmpItem = {
+      //         id: item.id,
+      //         name: item.name
+      //       };
+      //       filteredItems.push(tmpItem);
+      //     }
+      //   }
+
+      //   return filteredItems;
+      // },
+      // _getFilteredUnits: function() {
+      //   var filteredItems = [];
+      //   var l = this.units.length;
+      //   for(var i=0; i<l; i++) {
+      //     var unit = this.units[i];
+      //     if (this.isMatchingUnit(unit)) {
+      //       var tmpUnit = {
+      //         id: unit.id,
+      //         name: unit.name
+      //       };
+      //       filteredItems.push(tmpUnit);
+      //     }
+      //   }
+
+      //   return filteredItems;
+      // },
+      // onItemChange: function() {
+      //   // console.log('onItemChange: ', arguments, this.thing);
+
+      //   var val = this.thing.name;
+
+      //   if (!val || val === "") {
+      //     this.$.matchlist.hidden = true;
+      //   } else {
+      //     this.$.matchlist.hidden = false;
+      //   }
+
+      //   //filter items
+      //   var filteredItems = this._getFilteredItems();
+      //   this.set('filteredItems', filteredItems);
+      // },
+      // onUnitChange: function() {
+      //   // console.log('onItemChange: ', arguments, this.unit);
+
+      //   var val = this.unit.name;
+
+      //   if (!val || val === "") {
+      //     this.$.matchlist.hidden = true;
+      //   } else {
+      //     this.$.matchlist.hidden = false;
+      //   }
+
+      //   //filter items
+      //   var filteredItems = this._getFilteredUnits();
+      //   this.set('filteredItems', filteredItems);
+      // },
+      // onUnitFocusOut: function() {
+      //   // this.$.matchlist.hidden = true;
+      // },
+      // onItemFocusOut: function() {
+      //   // this.$.matchlist.hidden = true;
+
+      //   // this.$.qtyFld.focus();
+      // },
+      // onQtyFocusOut: function() {
+      //   // this.$.unitFld.focus();
+      // },
+      // onItemFocus: function() {
+      //   this.type = 'item';
+      // },
+      // onUnitFocus: function() {
+      //   this.type = 'unit';
+      // },
+      // isMatchingItem: function(item) {
+      //   var f = (item.name.toLowerCase().indexOf(this.thing.name.toLowerCase()) > -1) ? true : false;
+      //   // console.log("isMatchingItem: ", f, item.name, this.thing.name);
+      //   return f;
+      // },
+      // isMatchingUnit: function(item) {
+      //   var f = (item.name.toLowerCase().indexOf(this.unit.name.toLowerCase()) > -1) ? true : false;
+      //   // console.log("isMatchingItem: ", f, item.name, this.unit.name);
+      //   return f;
+      // },
+      // handleItemsMasterResponse: function(e, resp) {
+      //   // console.log('handleItemsMasterResponse:', arguments, resp.response);
+
+      //   this.masterItems = resp.response;
+      // },
+      // handleUnitsMasterResponse: function(e, resp) {
+      //   // console.log('handleUnitsMasterResponse:', arguments, resp.response);
+
+      //   this.units = resp.response;
+      // },
+      // handleError: function(req, error) {
+      //   console.log('handleError:', arguments);
+      // },
+      // selectThing: function(e) {
+      //   // console.log('selectThing:', e.model.item);
+
+      //   if (this.type === 'item') {
+      //     this.thing = e.model.item;
+      //     this.$.unitFld.focus();
+      //   } else {  //assume unit
+      //     this.unit = e.model.item;
+      //   }
+      //   this.$.matchlist.hidden = true;
+      // },
+      addEntry: function() {
+        // console.log('addEntry: ', this.thing, this.qty, this.unit);
+
+        //ignore if the user taps on Add without entering an item
+        if (this.thing.name === "") {
+          return;
+        }
+
+        this.fire('additem', {
+          thing: this.thing});
+
+        this.clearInputs();
+      },
+      clearInputs: function() {
+        // console.log('clearInputs');
+        this.initValues();
+      }
+    });
+  })();
+</script>

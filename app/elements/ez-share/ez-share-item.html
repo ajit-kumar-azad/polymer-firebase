@@ -1,0 +1,60 @@
+<dom-module id="ez-share-item">
+  <style>
+    :host {
+      display: block;
+    }
+
+    .crimson {
+      color: crimson;
+    }
+
+    .hand {
+      cursor: pointer;
+    }
+
+    .username {
+      margin-left: 16px;
+    }
+
+    .roundedimg {
+      border-radius: 40px;
+    }
+
+    /*TODO: need to fix this style */
+    iron-image::host img {
+      border-radius: 40px;
+    }
+
+  </style>
+    <template>
+        <paper-item>
+         <iron-image preload="data:image/png;base64,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" class="roundedimg" style="width:40px;height:40px;" sizing="contain" src$="{{getProfileImage(user)}}"></iron-image>
+          <div class="flex username">{{user.name}}</div>
+          <iron-icon icon="icons:delete" class="hand" on-tap="removeItem" hidden$="{{!editing}}"></iron-icon>
+        </paper-item>
+
+    </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'ez-share-item',
+      properties: {
+        user: {
+          type: Object,
+          notify: true,
+        },
+        editing: {
+          type: Boolean,
+          notify: true,
+        }
+      },
+      removeItem: function() {
+        this.fire('removeitem', this.item);
+      },
+      getProfileImage: function(user) {
+        return 'http://www.gravatar.com/avatar/' + user.gaHash + "?s=40&d=" + 'https%3A%2F%2Fwtcindia.files.wordpress.com%2F2015%2F07%2Fgravatar.png';
+      }
+    });
+  })();
+</script>
