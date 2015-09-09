@@ -74,28 +74,18 @@
   <template>
     <paper-toolbar id="mainToolbar">
       <paper-icon-button icon="hardware:keyboard-arrow-left" on-tap="goBack"></paper-icon-button>
-      <!-- <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button> -->
-      <!-- <paper-button tabindex="0" on-tap="goBack">
-        <iron-icon icon="hardware:keyboard-arrow-left"></iron-icon>
-        Back
-      </paper-button> -->
       <span class="flex"></span>
-      <!-- <h1 hidden$="{{editingName}}">{{getListName(list)}}</h1> -->
-      <!-- <h1 hidden$="{{editingName}}">{{list.name}}</h1> -->
       <div hidden$="{{editing}}" class="paper-font-display2 list-name">{{list.name}}</div>
       
       <paper-input-container always-float-label hidden$="{{!editing}}">
         <input class="paper-input-input" autofocus is="iron-input" bind-value="{{list.name}}" aria-label="Item" on-focusout="onListNameFocusOut" tabIndex="0"></input>
       </paper-input-container>
 
-      <!-- <paper-icon-button hidden$="{{editingName}}" icon="editor:mode-edit" title="Edit list" tabindex="0" on-tap="handleNameEdit"></paper-icon-button> -->
       <span class="flex"></span>
 
       <!-- Toolbar icons -->
-      <!-- <paper-icon-button icon="icons:add" title="Add new item" tabindex="0" on-tap="addNewItem"></paper-icon-button> -->
       <paper-icon-button icon="editor:mode-edit" title="Edit list" tabindex="0" hidden$="{{editing}}" on-tap="handleEdit"></paper-icon-button>
       <paper-icon-button icon="icons:done" title="Done editing" tabindex="0" hidden$="{{!editing}}" on-tap="handleDoneEdit"></paper-icon-button>
-<!--       <paper-icon-button icon="icons:close" title="Cancel editing" tabindex="0" hidden$="{{!editing}}"></paper-icon-button> -->
     </paper-toolbar>
     <paper-input-container always-float-label hidden$="{{!editing}}">
       <label>New Item</label>
@@ -105,21 +95,19 @@
     <firebase-collection id="openItems" 
             location="{{getListLocation(list)}}" 
             order-by-child="closed"
-            order-value-type="boolean"  
             equal-to="false"
-            data="{{items}}">
+            data="{{openItems}}">
     </firebase-collection>
 
     <firebase-collection id="closedItems" 
             location="{{getListLocation(list)}}" 
             order-by-child="closed"
-            order-value-type="boolean"  
             equal-to="true" 
             data="{{closedItems}}">
     </firebase-collection>
       
     <iron-selector>
-      <template is="dom-repeat" items="{{items}}">
+      <template is="dom-repeat" items="{{openItems}}">
           <ez-list-item item="{{item}}" itemLoc="{{getItemLoc(item)}}" data-behavior="viewonly" editing="{{editing}}" on-addnote="addNoteToItem" on-tap="closeItem" on-removeitem="removeItem"></ez-list-item>
       </template>
     </iron-selector>
@@ -138,25 +126,30 @@
       properties: {
         list: {
           type: Object,
-          notify: true
-          // observer: 'listChanged'
-        },
-        items: {
-          type: Array,
           notify: true,
-          value: []
+          observer: 'listChanged'
         },
-        item: {
-          type: Object,
-          notify: true,
-          value: {}
-        },
+        // items: {
+        //   type: Array,
+        //   notify: true,
+        //   value: []
+        // },
+        // item: {
+        //   type: Object,
+        //   notify: true,
+        //   value: {}
+        // },
         itemLoc: {
           type: String,
           notify: true,
           value: ""
         }, 
         closedItems: {
+          type: Array,
+          notify: true,
+          value: []
+        },
+        openItems: {
           type: Array,
           notify: true,
           value: []
@@ -172,84 +165,46 @@
         }
       },
       observers: [
-        'actionChanged(action)',
-        'listChanged(list.id)'
+        'actionChanged(action)'
       ],
       ready: function() {
-        this.closedItems.length = 0;
+
       },
       getListLocation: function(list) {
         if (list) {
-          console.log('Returning..' + Ezfy.BASE_FB_URL + list.createdBy + "/listitems/" + list.id);
-          return Ezfy.BASE_FB_URL + list.createdBy + "/listitems/" + list.id;
+          if (!list.id) { 
+
+            console.log('List id is undefined');
+
+          }
+
+          // console.log('Returning..' + Ezfy.BASE_FB_URL + this.list.createdBy + "/listitems/" + this.list.id);
+          return Ezfy.BASE_FB_URL + this.list.createdBy + "/listitems/" + this.list.id;
         }
       },
       getItemLoc: function(item) {
         // console.log("Item loc set to: " + Ezfy.BASE_FB_URL + this.list.createdBy + "/listitems/" + this.list.id + "/" + item.__firebaseKey__);
         return Ezfy.BASE_FB_URL + this.list.createdBy + "/listitems/" + this.list.id + "/" + item.__firebaseKey__;
       },
-      listChanged: function(listId) {
+      listChanged: function() {
       },
       actionChanged: function(action) {
-        // console.log('actionChanged....' + action);
-
         if (action === 'view') {
           this.editing = false;
         }
 
-        var fromListId = null;
-        var fromCreatedBy = null;
-
-        if (action === 'create' || action === 'copyncreate') {
-          // if (action === 'copyncreate') {
-          //   fromListId = this.list.id;
-          //   fromCreatedBy = this.list.createdBy
-          // }
-
+        if (action === 'create') {
           this.editing = true;
-
-          //create a list in Firebase
-          var listsRef = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid + "/lists");
-
-          // console.log('Pushing...', this.list);
-
-          this.list.favourite = false;
-          this.list.createdBy = Ezfy.user.uid;   //TODO: stamp user name, instead
-          this.list.createdOn = (new Date()).toDateString();
-
-          // if (action === 'create') {
-          //   this.list.totalCnt = 0;
-          //   this.list.pendingCnt = 0;
-          // }
-
-          var newList = listsRef.push(this.list);
-          // console.log('Setting id: ' + newList.key());
-
-          this.list.id = newList.key();
-
-          // this.setupWatcherForList(this.list);
-          var me = this;
-
-          if (action === 'create') {
-            me.set('items', []);
-            me.set('closedItems', []);
-
-            // console.log('CHANGING LIST TO: ', me.list);
-            me.set('list', me.list);
-            me.set('list.id', me.list.id);
-          }
         }
       },
       closeItem: function(e) {
-        // console.log('closeItem');
-
         var me = this;
         
         //ignore if the list is being edited
         if (!this.editing) {          
 
           this.$.openItems.remove(e.model.item);
-          e.model.item.closed = true;
+          e.model.item.closed = "true";
           this.$.closedItems.add(e.model.item);
         }
       },
@@ -259,25 +214,20 @@
         //ignore if the list is being edited
         if (!this.editing) {
           this.$.closedItems.remove(e.model.item);
-          e.model.item.closed = false;
+          e.model.item.closed = "false";
           this.$.openItems.add(e.model.item);
         }
       },
       goBack: function(e) {
-        // console.log('goBack: ', arguments);
         this.fire('backtolists');
       },
       addNewItem: function(e, itemObj) {
-        // console.log('addNewItem', arguments);
-
         this.$.openItems.add({
           name: itemObj.thing.name,
-          closed: false
+          closed: "false"
         });
       },
       removeItem: function(e) {
-        // console.log('removeItem: ' + e.model.index);
-
         var fbRef = new Firebase(Ezfy.BASE_FB_URL + this.list.createdBy + "/listitems/" + this.list.id + "/" + e.model.item.__firebaseKey__);
         fbRef.set(null);
       },

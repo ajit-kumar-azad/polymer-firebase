@@ -38,34 +38,6 @@
       font-size: 20px;
     }
 
-    /*paper-material.ez-share {
-      border-radius: 2px;
-      height: 100%;
-      padding: 16px 0 16px 0;
-      width: calc(98.66% - 16px);
-      margin: 16px auto;
-      background: white;
-    }*/
-
-    /*@media (max-width: 600px) {
-      paper-material.ez-share {
-        width: calc(97.33% - 32px);
-        padding-left: 16px;
-        padding-right: 16px;
-      }
-
-    }
-
-    @media (min-width: 601px) {
-      paper-material.ez-share {
-        width: calc(98% - 46px);
-        margin-bottom: 32px;
-        padding-left: 30px;
-        padding-right: 30px;
-      }
-
-    }*/
-
     paper-material.ez-share {
         width: 100%;
         border-bottom: #ddd;
@@ -80,17 +52,10 @@
       <paper-toast id="toast" text="{{msg}}"></paper-toast>
 
           <paper-toolbar id="mainToolbar">
-            <!-- <paper-button tabindex="0" on-tap="goBack"> -->
             <paper-icon-button icon="hardware:keyboard-arrow-left" on-tap="goBack"></paper-icon-button>
             <span class="flex"></span>
             <div class="paper-font-display2 list-name">{{list.name}}</div>
-            <!-- <iron-icon icon="hardware:keyboard-arrow-left"></iron-icon>
-            Back
-            </paper-button> -->
-            <!-- <span class="flex"></span>
-            <h1>{{list.name}}</h1> -->
             <span class="flex"></span>
-            <!-- <paper-icon-button icon="icons:done" title="Done sharing" tabindex="0" on-tap="handleDoneSharing"></paper-icon-button> -->
           </paper-toolbar>
 
           <paper-input-container always-float-label hidden$="{{!editing}}">
@@ -143,7 +108,6 @@
 
         var fbRef = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid + "/sharedbyme/" + list.id);
         fbRef.on('value', function(snapshot) {
-          // console.log('Users: ', snapshot.val());
           var usersObj = snapshot.val();
           var users = [];
           for (var userId in usersObj) {
@@ -160,10 +124,6 @@
         });
       },
       addNewItem: function(e, itemObj) {
-        // console.log('addNewItem', arguments);
-
-        // this.push('users', itemObj);
-
         var fbRef = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid +  "/sharedbyme/" + this.list.id);
         var newitem = fbRef.push({
           name: itemObj.name,
@@ -194,12 +154,8 @@
 
       },
       goBack: function(e) {
-        // console.log('goBack: ', arguments);
         this.fire('backtolists');
-      }/*,
-      onUsersLoaded: function(e, users) {
-        this.fire('usersloaded', users);
-      }*/
+      }
     });
   })();
 </script>

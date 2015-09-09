@@ -234,11 +234,6 @@
                   <span>Favourites</span>
                 </a>
 
-                <!-- <a data-route="settings" href="/settings">
-                  <iron-icon icon="icons:settings"></iron-icon>
-                  <span>Settings</span>
-                </a> -->
-
                 <a data-route="changepwd" href="/changepwd">
                   <iron-icon icon="communication:vpn-key"></iron-icon>
                   <span>Change Password</span>
@@ -273,11 +268,12 @@
 
               <section data-route="home">
 
-                <firebase-collection 
-                        location="{{getListsLocation()}}" 
-                        data="{{items}}">
-                </firebase-collection>
-
+              <firebase-collection 
+                      id="fbLists" 
+                      location="{{getListsLocation()}}" 
+                      data="{{items}}">
+              </firebase-collection>
+              
                 <!-- <firebase-document
                   location="{{getListsLocation()}}"
                   data="{{lists}}">
@@ -288,7 +284,6 @@
                           items="[[items]]" 
                           type="all" 
                           on-viewlist="onViewList" 
-                          on-createlist="startWithNewList" 
                           on-addtofav="onAddToFavourite" 
                           on-sharelist="onShareList">
                 </ez-lists>
@@ -360,11 +355,6 @@
           notify: true,
           value: 'Your Lists'
         },
-        // items: {
-        //   type: Array,
-        //   notify: true,
-        //   observer: 'itemsChanged'
-        // },
         users: {
           type: Object,
           notify: true
@@ -422,43 +412,43 @@
         return (this.selectedView === 'home' || this.selectedView === 'favourites' || this.selectedView === 'changepwd') ? false: true;
       },
       onViewList: function(e, list) {
-        // console.log('onViewList: ', arguments);
+        console.log('onViewList: ', arguments);
 
         this.listAction = "view";
         this.selectedList = list;
         this.selectedView = "list";
       },
       onAddToFavourite: function() {
-        // console.log('onAddToFavourite: ', arguments);
+        //do nothing
       },
       onShareList: function(e, list) {
-        // console.log('onShareList: ', arguments);
-
-        // this.listAction = "view";
         this.selectedList = list;
         this.selectedView = "share";
       },
       onBackToListsView: function() {
-        // console.log('onBackToListsView: ', arguments);
-
         this.selectedView = "home";
         this.selectedList = null;
 
         this.listAction = "";
       },
-      startWithNewList: function() {
-        this.selectedList = {
-          name: "New List"
-        };
-
-        this.listAction = "create";
-        this.selectedView = "list";
-
-      },
       createNewList: function() {
-        this.selectedList = {
-          name: "New List"
-        };
+
+        //create a list in Firebase
+        var listsRef = new Firebase(Ezfy.BASE_FB_URL + Ezfy.user.uid + "/lists");
+
+        var l = {
+          name: "New List",
+          favourite: false,
+          createdBy: Ezfy.user.uid,
+          createdOn: (new Date()).toDateString()
+        }
+
+        var o = this.$$("#fbLists").add(l);
+        o.update({id: o.key()});
+
+        l.id = o.key();
+
+        this.selectedList = l;
 
         this.listAction = "create";
         this.selectedView = "list";
@@ -477,18 +467,25 @@
 
         //set the global user
         Ezfy.user = u;
-
-
       },
       onLSLoad: function() {
         if (this.user)
           Ezfy.user = this.user;
       },
       logout: function() {
-        this.$$("#ezAuth").logout();
+        var auth = this.$$("#ezAuth");
 
-        this.set('user', null);
-        location.href = "/"
+        if (auth) {
+          auth.logout();
+        } else {
+          var fb = new Firebase(Ezfy.BASE_FB_URL);
+          fb.unauth();
+        }
+
+        this.set('user.authenticated', false);
+        this.set('user.uid', "");
+        this.set('user.name', "");
+        this.set('user.gaHash', "");
       },
       onChangePwd: function(e) {
         var data = e.detail.data;

@@ -16,31 +16,6 @@
       width: 80px;
     }
 
-/*    .avatar {
-      display: inline-block;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      overflow: hidden;
-      background: #ccc;
-    }
-
-    .blue {
-      background-color: var(--paper-light-blue-300);
-    }
-
-    .red {
-      background-color: var(--paper-red-300);
-    }
-
-    .orange {
-      background-color: var(--paper-amber-300);
-    }
-
-    .green {
-      background-color: var(--paper-green-300);
-    }*/
-
     .crimson {
       color: crimson;
     }
@@ -112,7 +87,6 @@
         }
       },
       ready: function() {
-        // debugger;
       },
       removeItem: function() {
         this.fire('removeitem', this.item);
@@ -125,7 +99,6 @@
         this.$.notedialog.close();
         var v = this.$.nodetxt.value;
         this.fire('addnote', {item: this.item, note: v});
-        // this.$.listItem.update({note: v});
         this.$.nodetxt.value = "";
       }
     });

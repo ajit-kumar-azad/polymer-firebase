@@ -37,24 +37,12 @@
     }
 
     .logo {
-      /*height: 150px;*/
-      /*margin-top: 64px;*/
-      /*margin-left: 80px;*/
-      /*background-image: url(images/ezfy_logo_pink_small.png);*/
-      /*background-image: url(https://wtcindia.files.wordpress.com/2015/07/gravatar.png);
-      background-repeat: no-repeat;*/
       height: 87px;
       width: 72px;
-      /*margin-bottom: 100px;*/
     }
 
   </style>
   <template>
-<!--     <paper-dialog id="dialog" modal>
-      <paper-spinner active></paper-spinner>
-    </paper-dialog>
- -->
-    <!-- <paper-toast id="toast" text="{{msg}}"></paper-toast> -->
     <div>
       <form is="iron-form" id="formGet" method="get" action="/">
         <paper-input name="email" type="email" label="E-mail" required value$="{{email}}"></paper-input>
@@ -85,8 +73,6 @@
         this.set('email', Ezfy.user.name);
       },
       changePwd: function() {
-        // this.$.dialog.open();
-
         var formData = Polymer.dom(event).localTarget.parentElement.serialize();
 
         this.fire("changepwd", {data: formData});

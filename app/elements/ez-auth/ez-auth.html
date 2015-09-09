@@ -37,15 +37,8 @@
     }
 
     .logo {
-      /*height: 150px;*/
-      /*margin-top: 64px;*/
-      /*margin-left: 80px;*/
-      /*background-image: url(images/ezfy_logo_pink_small.png);*/
-      /*background-image: url(https://wtcindia.files.wordpress.com/2015/07/gravatar.png);
-      background-repeat: no-repeat;*/
       height: 87px;
       width: 72px;
-      /*margin-bottom: 100px;*/
     }
 
     .legaltxt {
@@ -75,11 +68,6 @@
 
     <paper-toast id="toast" text="{{msg}}"></paper-toast>
     <div>
-      <!-- <div class="logo"> -->
-        <!-- <h1>ezfy</h1> -->
-      <!-- </div> -->
-      <!-- <iron-icon class="logo" src="images/ezfy_logo_pink_small.png"></iron-icon> -->
-
       <firebase-auth id="firebaseAuth" 
                       user="{{user}}" 
                       status-known="{{statusKnown}}" 
@@ -96,11 +84,8 @@
       <form is="iron-form" id="formGet" method="get" action="/">
         <paper-input name="email" type="email" label="E-mail" required></paper-input>
         <paper-input name="password" type="password" label="Password" required hidden$="{{resetpwd}}"></paper-input>
-<!--         <paper-input name="password" type="password" label="Old Password" required></paper-input>
-        <paper-input name="confirmpassword" type="password" label="Confirm Password" hidden$="{{!chpwd}}" required></paper-input> -->
         <br>
 
-<!--         <paper-button class="primary" raised on-tap="changePwd" hidden$="{{!chpwd}}">Change Password</paper-button> -->
         <paper-button class="primary" raised on-tap="resetPwd" hidden$="{{!resetpwd}}">Reset Password</paper-button>
         <paper-button class="primary" raised on-tap="signIn" hidden$="{{resetpwd}}">Sign In</paper-button>
         <paper-button class="secondary" raised on-tap="signUp" hidden$="{{resetpwd}}">Create a Free Account</paper-button>
