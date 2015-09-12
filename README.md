@@ -266,4 +266,4 @@ Polymer Starter Kit is a new project and is an ongoing effort by the Web Compone
 
 ## License
 
-WizarDroid.Net is available under the [MIT License](https://github.com/walkingtree/WizarDroid.Net/blob/master/license).
+This project is available under the [MIT License](https://github.com/walkingtree/WizarDroid.Net/blob/master/license).
