@@ -263,3 +263,7 @@ If you find that you just want the simplest setup possible, we recommend using P
 ## Contributing
 
 Polymer Starter Kit is a new project and is an ongoing effort by the Web Component community. We welcome your bug reports, PRs for improvements, docs and anything you think would improve the experience for other Polymer developers.
+
+## License
+
+This project is available under the [MIT License](https://github.com/walkingtree/WizarDroid.Net/blob/master/license).
