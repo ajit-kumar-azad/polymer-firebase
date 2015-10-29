@@ -163,6 +163,7 @@
       //NOTE: I have modified the createUser method of firebase-auth element to return the
       //user object
       onUserCreated: function(e) {
+        this.$.dialog.close();
         var msg = "You have been registered successfully. You will be logged in, now!";
 
         var userData = e.detail.user;
